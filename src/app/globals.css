@@ -1,14 +1,61 @@
-/* @tailwind base; */
-@tailwind components;
-@tailwind utilities;
+/* Import Tailwind's base styles */
+@import 'tailwindcss/base';
 
+/* Import Tailwind's component styles */
+@import 'tailwindcss/components';
+
+/* Import Tailwind's utility styles */
+@import 'tailwindcss/utilities';
+
+/* Global styles */
 :root {
-}
-
-@media (prefers-color-scheme: dark) {
-  :root {
-  }
+  --main-font-family: 'Arial', sans-serif;
+  --main-bg-color: #f9f9f9;
+  --main-text-color: #333;
 }
 
 body {
+  font-family: var(--main-font-family);
+  margin: 0;
+  padding: 0;
+  line-height: 1.6;
+  color: var(--main-text-color);
+  background-color: var(--main-bg-color);
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  height: 100vh;
+  /* Full viewport height */
+  overflow: hidden;
+  /* Prevent scrolling */
+}
+
+/* Phone frame styles */
+.phone-frame {
+  width: full;
+  /* Width for common mobile device */
+  height: full;
+  /* Border to mimic phone's edge */
+  border-radius: 36px;
+  /* Rounded corners */
+  padding: 20px;
+  /* Space inside the frame */
+  background: #fff;
+  /* Background color inside the frame */
+  box-shadow: 0 0 10px rgba(0, 0, 0, 0.1);
+  /* Shadow for realism */
+  position: relative;
+}
+
+/* Optional: Add a "notch" effect at the top */
+.phone-frame::before {
+  content: '';
+  position: absolute;
+  top: 10px;
+  left: 50%;
+  transform: translateX(-50%);
+  width: 80px;
+  height: 5px;
+  background: #333;
+  border-radius: 5px;
 }
