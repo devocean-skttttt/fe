@@ -1,5 +1,3 @@
-// 테스트용 임시 네비게이션
-
 import Link from "next/link";
 
 export default function Navigation() {
