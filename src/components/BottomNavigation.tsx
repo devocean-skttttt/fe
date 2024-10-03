@@ -1,7 +1,13 @@
-"use client";
+'use client';
 
 import Link from 'next/link';
 import { usePathname } from 'next/navigation'; // Updated to use next/navigation
+
+const BOTTOM_MENU = [
+  { path: '/', text: '홈' },
+  { path: '/upload', text: '등록하기' },
+  { path: '/mypage', text: '마이페이지' },
+] as const;
 
 function BottomNavigation() {
   const pathname = usePathname(); // Get the current path using usePathname
@@ -10,43 +16,24 @@ function BottomNavigation() {
   const isActive = (path: string) => pathname === path;
 
   return (
-    <div className="w-full px-6 fixed bottom-0 left-0 flex justify-between items-center bg-white border-t border-gray-200">
-      <Link href="/">
-        <div className="w-12 h-10 flex flex-col justify-center items-center gap-1.5 cursor-pointer">
-          <div
-            className={`text-center text-[10px] font-['SF Pro'] ${
-              isActive('/mypage') ? 'text-[#330218]' : 'text-[#999999]'
-            }`}
-          >
-            홈
-          </div>
-        </div>
-      </Link>
-
-      <Link href="/upload">
-        <div className="w-12 h-10 flex flex-col justify-center items-center gap-1.5 cursor-pointer">
-          <div
-            className={`text-center text-[10px] font-['SF Pro'] ${
-              isActive('/register') ? 'text-[#330218]' : 'text-[#999999]'
-            }`}
-          >
-            등록하기
-          </div>
-        </div>
-      </Link>
-
-      <Link href="/mypage">
-        <div className="w-12 h-10 flex flex-col justify-center items-center gap-1.5 cursor-pointer">
-          <div
-            className={`text-center text-[10px] font-['SF Pro'] ${
-              isActive('/menu') ? 'text-[#330218]' : 'text-[#999999]'
-            }`}
-          >
-            마이페이지
-          </div>
-        </div>
-      </Link>
-    </div>
+    <>
+      <div className="flex w-full items-center h-12 justify-around fixed bottom-0 bg-white max-w-mobile">
+        {BOTTOM_MENU.map((item) => (
+          <Link href={item.path} key={item.path}>
+            <div className="w-20 text-center">
+              <div
+                className={`${
+                  isActive(item.path) ? 'text-[#330218]' : 'text-[#999999]'
+                }`}
+              >
+                {item.text}
+              </div>
+            </div>
+          </Link>
+        ))}
+      </div>
+      <div className="h-[54px]" />
+    </>
   );
 }
 
