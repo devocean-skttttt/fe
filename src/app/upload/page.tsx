@@ -1,6 +1,6 @@
-"use client";
+'use client';
 
-import { useState } from "react";
+import { useState } from 'react';
 
 function UploadPage() {
   const [beforeImage, setBeforeImage] = useState<File | null>(null);
@@ -13,7 +13,11 @@ function UploadPage() {
   const handleHashtagKeyDown = (e: React.KeyboardEvent<HTMLInputElement>) => {
     if (e.key === 'Enter') {
       const trimmedValue = inputValue.trim();
-      if (trimmedValue && !hashtags.includes(trimmedValue) && hashtags.length < 5) {
+      if (
+        trimmedValue &&
+        !hashtags.includes(trimmedValue) &&
+        hashtags.length < 5
+      ) {
         setHashtags([...hashtags, trimmedValue]);
         setInputValue('');
       }
@@ -35,8 +39,8 @@ function UploadPage() {
       setAfterImage(e.target.files[0]);
     }
   };
- return (
-    <div className="px-6 mt-6">
+  return (
+    <div className="px-4">
       {/* Title Section */}
       <h1 className="text-black text-lg font-bold font-['Pretendard Variable'] text-center">
         나만의 보정법 등록하기
@@ -44,7 +48,10 @@ function UploadPage() {
 
       {/* Title Input */}
       <div className="mb-6">
-        <label className="block text-[#646262] text-[15px] font-bold mb-2" htmlFor="title">
+        <label
+          className="block text-[#646262] text-[15px] font-bold mb-2"
+          htmlFor="title"
+        >
           제목
         </label>
         <input
@@ -59,7 +66,10 @@ function UploadPage() {
 
       {/* Description Input */}
       <div className="mb-6">
-        <label className="block text-[#646262] text-[15px] font-bold mb-2" htmlFor="description">
+        <label
+          className="block text-[#646262] text-[15px] font-bold mb-2"
+          htmlFor="description"
+        >
           설명
         </label>
         <textarea
@@ -73,7 +83,10 @@ function UploadPage() {
 
       {/* Hashtags Input */}
       <div className="mb-6">
-        <label className="block text-[#646262] text-[15px] font-bold mb-2" htmlFor="hashtags">
+        <label
+          className="block text-[#646262] text-[15px] font-bold mb-2"
+          htmlFor="hashtags"
+        >
           해시태그
         </label>
         <input
@@ -159,7 +172,12 @@ function UploadPage() {
       <div className="mt-6 grid grid-cols-2 gap-4">
         {/* Example of a slider placeholder */}
         <div className="flex flex-col items-center">
-          <label htmlFor="exposure" className="text-[#646262] text-sm font-semibold">노출</label>
+          <label
+            htmlFor="exposure"
+            className="text-[#646262] text-sm font-semibold"
+          >
+            노출
+          </label>
           <div className="w-[60px] h-[26.83px] bg-white border border-[#d9d9d9] rounded-[5px] shadow"></div>
         </div>
         {/* Repeat similar slider controls for other adjustments */}

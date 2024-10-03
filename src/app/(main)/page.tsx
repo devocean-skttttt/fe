@@ -1,3 +1,9 @@
+import Navigation from '@/components/Navigation';
+
 export default function Page() {
-  return <>기본</>;
+  return (
+    <>
+      <Navigation />
+    </>
+  );
 }
