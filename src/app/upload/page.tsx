@@ -1,52 +1,157 @@
 'use client';
+import React, { useState } from 'react';
 
-import { useState } from 'react';
-
-function UploadPage() {
+function useUploadPageState() {
   const [beforeImage, setBeforeImage] = useState<File | null>(null);
   const [afterImage, setAfterImage] = useState<File | null>(null);
   const [inputValue, setInputValue] = useState('');
   const [hashtags, setHashtags] = useState<string[]>([]);
   const [title, setTitle] = useState('');
   const [description, setDescription] = useState('');
+  const [isComposing, setIsComposing] = useState(false);
+  const [error, setError] = useState<string | null>(null);
 
-  const handleHashtagKeyDown = (e: React.KeyboardEvent<HTMLInputElement>) => {
-    if (e.key === 'Enter') {
-      const trimmedValue = inputValue.trim();
-      if (
-        trimmedValue &&
-        !hashtags.includes(trimmedValue) &&
-        hashtags.length < 5
-      ) {
-        setHashtags([...hashtags, trimmedValue]);
-        setInputValue('');
-      }
-      e.preventDefault();
-    }
+  return {
+    beforeImage,
+    setBeforeImage,
+    afterImage,
+    setAfterImage,
+    inputValue,
+    setInputValue,
+    hashtags,
+    setHashtags,
+    title,
+    setTitle,
+    description,
+    setDescription,
+    isComposing,
+    setIsComposing,
+    error,
+    setError,
   };
+}
 
-  const removeHashtag = (index: number) => {
-    setHashtags(hashtags.filter((_, i) => i !== index));
-  };
-  const handleBeforeImageUpload = (e: React.ChangeEvent<HTMLInputElement>) => {
-    if (e.target.files && e.target.files.length > 0) {
-      setBeforeImage(e.target.files[0]);
+function handleHashtagKeyDown(
+  e: React.KeyboardEvent<HTMLInputElement>,
+  inputValue: string,
+  isComposing: boolean,
+  hashtags: string[],
+  setHashtags: React.Dispatch<React.SetStateAction<string[]>>,
+  setInputValue: React.Dispatch<React.SetStateAction<string>>,
+  setError: React.Dispatch<React.SetStateAction<string | null>>
+) {
+  const MAX_HASHTAG_LENGTH = 20;
+  if (e.key === 'Enter' && !isComposing) {
+    const trimmedValue = inputValue.trim();
+    if (trimmedValue.length > MAX_HASHTAG_LENGTH) {
+      setError(`해시태그는 최대 ${MAX_HASHTAG_LENGTH}자까지 입력 가능합니다.`);
+    } else if (
+      trimmedValue &&
+      !hashtags.includes(trimmedValue) &&
+      hashtags.length < 5
+    ) {
+      setHashtags([...hashtags, trimmedValue]);
+      setInputValue('');
+      setError(null);
     }
-  };
+    e.preventDefault();
+  }
+}
 
-  const handleAfterImageUpload = (e: React.ChangeEvent<HTMLInputElement>) => {
-    if (e.target.files && e.target.files.length > 0) {
-      setAfterImage(e.target.files[0]);
-    }
-  };
+function handleImageUpload(
+  e: React.ChangeEvent<HTMLInputElement>,
+  setImage: React.Dispatch<React.SetStateAction<File | null>>
+) {
+  if (e.target.files && e.target.files.length > 0) {
+    setImage(e.target.files[0]);
+  }
+}
+
+function handleSubmit(
+  e: React.FormEvent<HTMLFormElement>,
+  title: string,
+  description: string,
+  hashtags: string[],
+  beforeImage: File | null,
+  afterImage: File | null
+) {
+  e.preventDefault();
+
+  const formData = new FormData();
+  formData.append('title', title);
+  formData.append('description', description);
+  formData.append('hashtags', hashtags.join(','));
+  formData.append('beforeImage', beforeImage as Blob);
+  formData.append('afterImage', afterImage as Blob);
+
+  console.log(
+    'Form data:',
+    formData.get('title'),
+    formData.get('description'),
+    formData.get('hashtags'),
+    formData.get('beforeImage'),
+    formData.get('afterImage')
+  );
+}
+
+function ImageUpload({
+  image,
+  onImageUpload,
+  label,
+}: {
+  image: File | null;
+  onImageUpload: (e: React.ChangeEvent<HTMLInputElement>) => void;
+  label: string;
+}) {
   return (
-    <div className="px-4">
-      {/* Title Section */}
+    <div className="relative w-[151px] h-[154px] bg-[#d9d9d9] rounded-[10px] shadow flex items-center justify-center">
+      {image ? (
+        <img
+          src={URL.createObjectURL(image)}
+          alt={label}
+          className="w-full h-full object-cover rounded-[10px]"
+        />
+      ) : (
+        <label className="text-center cursor-pointer">
+          <span className="text-[#646262]">이미지 업로드</span>
+          <input
+            type="file"
+            accept="image/*"
+            className="hidden"
+            onChange={onImageUpload}
+          />
+        </label>
+      )}
+    </div>
+  );
+}
+
+function UploadPage() {
+  const {
+    beforeImage,
+    setBeforeImage,
+    afterImage,
+    setAfterImage,
+    inputValue,
+    setInputValue,
+    hashtags,
+    setHashtags,
+    title,
+    setTitle,
+    description,
+    setDescription,
+    isComposing,
+    setIsComposing,
+    error,
+    setError,
+  } = useUploadPageState();
+
+  return (
+    <div className="px-6 mt-6">
       <h1 className="text-black text-lg font-bold font-['Pretendard Variable'] text-center">
         나만의 보정법 등록하기
       </h1>
 
-      {/* Title Input */}
       <div className="mb-6">
         <label
           className="block text-[#646262] text-[15px] font-bold mb-2"
@@ -64,7 +169,6 @@ function UploadPage() {
         />
       </div>
 
-      {/* Description Input */}
       <div className="mb-6">
         <label
           className="block text-[#646262] text-[15px] font-bold mb-2"
@@ -81,7 +185,6 @@ function UploadPage() {
         />
       </div>
 
-      {/* Hashtags Input */}
       <div className="mb-6">
         <label
           className="block text-[#646262] text-[15px] font-bold mb-2"
@@ -94,11 +197,23 @@ function UploadPage() {
           id="hashtags"
           value={inputValue}
           onChange={(e) => setInputValue(e.target.value)}
-          onKeyDown={handleHashtagKeyDown}
+          onKeyDown={(e) =>
+            handleHashtagKeyDown(
+              e,
+              inputValue,
+              isComposing,
+              hashtags,
+              setHashtags,
+              setInputValue,
+              setError
+            )
+          }
+          onCompositionStart={() => setIsComposing(true)}
+          onCompositionEnd={() => setIsComposing(false)}
           className="w-full h-[50px] border-b border-[#c7c7c7] px-4 text-[15px] focus:outline-none focus:border-[#330218]"
           placeholder="해시태그를 입력해주세요 (최대 5개)"
         />
-        {/* Display Hashtags */}
+        {error && <div className="text-red-500 text-sm mt-2">{error}</div>}
         {hashtags.length > 0 && (
           <div className="mt-4 flex flex-wrap gap-2">
             {hashtags.map((hashtag, index) => (
@@ -108,7 +223,9 @@ function UploadPage() {
               >
                 #{hashtag}
                 <button
-                  onClick={() => removeHashtag(index)}
+                  onClick={() =>
+                    setHashtags(hashtags.filter((_, i) => i !== index))
+                  }
                   className="ml-2 text-[#330218] font-bold"
                 >
                   &times;
@@ -119,75 +236,114 @@ function UploadPage() {
         )}
       </div>
 
-      {/* Image Upload Section */}
-      <div className="mt-6 flex justify-between">
-        <div className="text-[#646262] text-[15px] font-bold">보정 전 사진</div>
-        <div className="text-[#646262] text-[15px] font-bold">보정 후 사진</div>
+      <div className="mb-6">
+        <label className="block text-[#646262] text-[15px] font-bold mb-2">
+          사진 업로드
+        </label>
+
+        <div className="mt-2 flex justify-around">
+          <div className="text-[#646262] text-[15px] font-bold">
+            보정 전 사진
+          </div>
+          <div className="text-[#646262] text-[15px] font-bold">
+            보정 후 사진
+          </div>
+        </div>
+        <div className="mt-2 flex justify-around">
+          <ImageUpload
+            image={beforeImage}
+            onImageUpload={(e) => handleImageUpload(e, setBeforeImage)}
+            label="Before"
+          />
+          <ImageUpload
+            image={afterImage}
+            onImageUpload={(e) => handleImageUpload(e, setAfterImage)}
+            label="After"
+          />
+        </div>
       </div>
-      <div className="mt-2 flex justify-between">
-        {/* Before Image Upload */}
-        <div className="relative w-[151px] h-[154px] bg-[#d9d9d9] rounded-[10px] shadow flex items-center justify-center">
-          {beforeImage ? (
-            <img
-              src={URL.createObjectURL(beforeImage)}
-              alt="Before"
-              className="w-full h-full object-cover rounded-[10px]"
-            />
-          ) : (
-            <label className="text-center cursor-pointer">
-              <span className="text-[#646262]">이미지 업로드</span>
+
+      <div className="mb-6">
+        <label className="block text-[#646262] text-[15px] font-bold mb-2">
+          보정 레시피
+        </label>
+        <div className="mt-6 flex flex-wrap justify-center gap-4">
+          {[
+            { name: '노출', min: -100, max: 100 },
+            { name: '휘도', min: -100, max: 100 },
+            { name: '하이라이트', min: -100, max: 100 },
+            { name: '그림자', min: -100, max: 100 },
+            { name: '대비', min: -100, max: 100 },
+            { name: '밝기', min: -100, max: 100 },
+            { name: '블랙포인트', min: -100, max: 100 },
+            { name: '채도', min: -100, max: 100 },
+            { name: '색 선명도', min: 0, max: 100 },
+            { name: '따뜻함', min: -100, max: 100 },
+            { name: '색조', min: -100, max: 100 },
+            { name: '선명도', min: 0, max: 100 },
+            { name: '명료도', min: 0, max: 100 },
+            { name: '노이즈감소', min: 0, max: 100 },
+            { name: '비네트', min: -100, max: 100 },
+          ].map((item, index) => (
+            <div
+              key={index}
+              data-index={index}
+              className="flex flex-col items-center"
+            >
+              <label className="text-[#646262] text-sm font-semibold">
+                {item.name}
+              </label>
               <input
-                type="file"
-                accept="image/*"
-                className="hidden"
-                onChange={handleBeforeImageUpload}
+                type="number"
+                min={item.min}
+                max={item.max}
+                className="w-[60px] h-[26.83px] bg-white border border-[#d9d9d9] rounded-[5px] shadow text-center"
+                defaultValue={0}
+                onKeyDown={(e) => {
+                  if (e.key === 'Enter') {
+                    e.preventDefault(); // 폼 제출 방지
+                    const inputs = Array.from(
+                      document.querySelectorAll('input')
+                    );
+                    const index = inputs.indexOf(e.target as HTMLInputElement);
+                    if (index > -1 && index < inputs.length - 1) {
+                      inputs[index + 1].focus();
+                    } else {
+                      alert('마지막 입력 필드입니다.');
+                    }
+                  }
+                }}
+                onChange={(e) => {
+                  const value = e.target.value;
+                  if (
+                    value !== '' &&
+                    (isNaN(Number(value)) || Number(value) < item.min)
+                  ) {
+                    e.target.value = item.min.toString();
+                  } else if (Number(value) > item.max) {
+                    e.target.value = item.max.toString();
+                  }
+                }}
               />
-            </label>
-          )}
-        </div>
-
-        {/* After Image Upload */}
-        <div className="relative w-[151px] h-[154px] bg-[#d9d9d9] rounded-[10px] shadow flex items-center justify-center">
-          {afterImage ? (
-            <img
-              src={URL.createObjectURL(afterImage)}
-              alt="After"
-              className="w-full h-full object-cover rounded-[10px]"
-            />
-          ) : (
-            <label className="text-center cursor-pointer">
-              <span className="text-[#646262]">이미지 업로드</span>
-              <input
-                type="file"
-                accept="image/*"
-                className="hidden"
-                onChange={handleAfterImageUpload}
-              />
-            </label>
-          )}
+            </div>
+          ))}
         </div>
       </div>
 
-      {/* Adjustment Sliders (UI placeholders) */}
-      <div className="mt-6 grid grid-cols-2 gap-4">
-        {/* Example of a slider placeholder */}
-        <div className="flex flex-col items-center">
-          <label
-            htmlFor="exposure"
-            className="text-[#646262] text-sm font-semibold"
-          >
-            노출
-          </label>
-          <div className="w-[60px] h-[26.83px] bg-white border border-[#d9d9d9] rounded-[5px] shadow"></div>
-        </div>
-        {/* Repeat similar slider controls for other adjustments */}
-      </div>
-
-      {/* Submit Button */}
       <div className="flex justify-center mt-6">
         <button
           type="submit"
           className="px-6 py-2 bg-[#330218] text-white rounded-lg font-bold"
+          onClick={(e) =>
+            handleSubmit(
+              e as unknown as React.FormEvent<HTMLFormElement>,
+              title,
+              description,
+              hashtags,
+              beforeImage,
+              afterImage
+            )
+          }
         >
           제출하기
         </button>

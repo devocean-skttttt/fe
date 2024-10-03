@@ -1,9 +1,9 @@
-const ICON = {
+const ICON = Object.freeze({
   nav: {
-    home: "home.svg",
-    upload: "plus.svg",
-    mypage: "person.svg",
+    home: '/icon/home.svg',
+    upload: '/icon/plus.svg',
+    mypage: '/icon/person.svg',
   },
-} as const;
+});
 
 export default ICON;
